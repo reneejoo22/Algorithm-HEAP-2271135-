@@ -14,8 +14,8 @@ typedef struct {
 
 HeapType* create() {	//heaptype만큼 동적 메모리 할당(삭제함수나 삽입함수 구현을 위해 필요)+ 초기화
 
-	HeapType* heap= (HeapType*)malloc(sizeof(HeapType));
-	
+	HeapType* heap = (HeapType*)malloc(sizeof(HeapType));
+
 	if (heap == NULL) {
 		printf("메모리가 할당되지 않았습니다");
 		return heap;
@@ -42,7 +42,7 @@ void InsertMax(HeapType* h, element item) {	//새 노드 저장_업
 }
 
 
-element DeleteMax(HeapType* h) {	//삭제함수_부모노드키값>자식노드키값
+element DeleteMax(HeapType* h) {	//삭제함수_다운, 노드키값>자식노드키값
 
 	int parent, kid;	//부모노드와 자식노드의 위치
 	element item, tmp;
@@ -102,7 +102,7 @@ void main() {
 	*/
 	printf("삽입한 순서\n");
 	PrintHeap(heap);
-	
+
 
 	printf("삭제 값\n");
 	e4 = DeleteMax(heap);	//heap의 삭제된 값을 e4에 저장
@@ -113,7 +113,7 @@ void main() {
 
 	e6 = DeleteMax(heap);	//heap의 삭제된 값을 e4에 저장
 	printf("%d ", e6.key);
-		
+
 	free(heap);
 
 }
