@@ -1,9 +1,27 @@
+//Heap를 이용한 Huffman Code
+
 #include<stdio.h>
 #include<stdlib.h>
 #define MaxElement 200
 
+typedef struct TreeNode {
+	
+	//이 두가지의 정보와+ 왼오 위치 정보값을 가짐
+	int weight;	//빈도수
+	char ch;	//문자
+	struct TreeNode *left;		//왼쪽위치
+	struct TreeNode* right;		//오른쪽위치
+}TreeNode;
+
+
 typedef struct {
-	int key;	//정수값 저장
+
+	// 트리노드의 위치값을 저장함
+	TreeNode* ptree;
+
+	int key;	//정수값 저장, 트리노드의 빈도수를 여기에 저장
+	char ch;	//문자열 저장, 트리노드의 문자열을 여기에 저장
+	
 }element;
 
 typedef struct {
@@ -12,28 +30,29 @@ typedef struct {
 }HeapType;
 
 
+//생성+초기화 함수
 HeapType* create() {	//heaptype만큼 동적 메모리 할당(삭제함수나 삽입함수 구현을 위해 필요)+ 초기화
 
 	HeapType* heap = (HeapType*)malloc(sizeof(HeapType));
 
-	if (heap == NULL) {
-		printf("메모리가 할당되지 않았습니다");
+	if (heap == NULL) {	//heap이 비어있을 경우
+		printf("heap 메모리가 할당되지 않았습니다");
 		return heap;
 	}
 
-	heap->HeapSize = 0;
+	heap->HeapSize = 0;		//비어있지 않으면 0으로 초기화하고 
 
-	return heap;
+	return heap;	//돌려보내기
 }
 
 
-
-void InsertMax(HeapType* h, element item) {	//새 노드 저장_업
+//삽입 함수(최소)
+void InsertMin(HeapType* h, element item) {	//새 노드 저장_업
 
 	int where;	//새로운 노드를 저장할 위치
 	where = ++(h->HeapSize);	//가장 마지막 자리에 저장
 
-	while ((where != 1) && (item.key > h->heap[where / 2].key)) {	//where가 1이 아니고(더 올라갈 곳 X) && 부모노드보다 클때
+	while ((where != 1) && (item.key < h->heap[where / 2].key)) {	//위치가 더 올라갈 곳 있을때 && 부모가 자식보다 클때_돌아감
 
 		h->heap[where] = h->heap[where / 2];	//자신의 부모노드가 있는 곳으로 올라감
 		where /= 2;		//저장장소도 갱신
@@ -41,13 +60,13 @@ void InsertMax(HeapType* h, element item) {	//새 노드 저장_업
 	h->heap[where] = item;
 }
 
-
-element DeleteMax(HeapType* h) {	//삭제함수_다운, 노드키값>자식노드키값
+//삭제함수(최소)
+element DeleteMin(HeapType* h) {	//삭제함수_다운, 노드키값>자식노드키값
 
 	int parent, kid;	//부모노드와 자식노드의 위치
 	element item, tmp;
 
-	item = h->heap[1];	//삭제할 루트 값의 키값을 item에 저장
+	item = h->heap[1];	//삭제할 루트의 키값을 item에 저장
 	tmp = h->heap[(h->HeapSize)--];	//막내 노드의 키값 저장
 
 	parent = 1;	//맨 위의 위치
@@ -64,9 +83,9 @@ element DeleteMax(HeapType* h) {	//삭제함수_다운, 노드키값>자식노드키값
 		자식의 키값을 부모가 위치한쪽으로 덮어씌움+ 가르키는 위치는 아래로 내려감
 		*/
 
-		if ((kid < h->HeapSize) && (h->heap[kid].key) < (h->heap[kid + 1].key))	// 왼자< 오자 
-			kid++;	//오 자식의 위치로 바꿈
-		if (tmp.key >= h->heap[kid].key)break;	//막내 노드>= 자식키값_ 성립ㅇ, 정착
+		if ((kid < h->HeapSize) && (h->heap[kid].key) > (h->heap[kid + 1].key))	// 왼자> 오자 
+			kid++;	//오 자식의 위치로 바꿈(더 작은 값으로)
+		if (tmp.key < h->heap[kid].key)break;	//막내 노드< 자식키값_ 성립ㅇ, 정착
 
 		h->heap[parent] = h->heap[kid];	//if문 둘다 맞지 않아서 벗어나온 경우, 아래값을 위의 값으로 넘김
 		parent = kid;	//히프사이즈 값을 넘어가지 않은 한 계속 반복해야함. 아래로 내려가야하니 parent한테 현재의 막내노드 위치값을 넘겨줌
@@ -77,43 +96,111 @@ element DeleteMax(HeapType* h) {	//삭제함수_다운, 노드키값>자식노드키값
 	return item;
 }
 
-void PrintHeap(HeapType* h) {
+//이진 트리 생성함수(트리노드 동적으로 할당하는 함수)
+TreeNode* MakeTree(TreeNode* left, TreeNode* right) {
+	
+	TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));	//트리노드만큼 메모리 동적할당
 
-	for (int num = 1; num < h->HeapSize + 1; num++) {
+	if (node == NULL) {	//혹시라도 node이 비어있을 경우
+		printf("node 메모리가 할당되지 않았습니다");
+		return node;
+	}
 
-		printf("%d ", h->heap[num].key);
+	node->left = left;	//노드의 왼쪽은 받은 매개변수의 값을 그대로 넣어줌
+	node->right = right;	//노드의 오른쪽은 받은 매개변수의 값을 그대로 넣어줌
+	return node;
+}
+
+//이진 트리 제거 함수(트리노드 동적으로 할당한 메모리 해제 함수)
+void DestroyTree(TreeNode* root) {
+
+	if (root == NULL)return;
+	DestroyTree(root->left);
+	DestroyTree(root->right);
+	free(root);
+
+}
+
+int is_leaf(TreeNode* root) {
+
+	return !(root->left) && !(root->right);
+	//루트의 왼쪽과 오른쪽 둘다 비어있는 경우 참을 돌려보냄
+}
+
+//출력하기
+void PrintArray(int codes[], int n) {
+
+	for (int i = 0; i < n; i++) {
+		printf("%d", codes[i]);
 	}
 	printf("\n");
 }
 
-void main() {
+//코드를 분석하고 값을 넘겨줌
+void PrintCodes(TreeNode* root, int codes[], int top) {
 
-	element e1 = { 10 }, e2 = { 20 }, e3 = { 30 };
-	element e4, e5, e6;
-	HeapType* heap;
+	//1을 저장하고 순환호출한다
+	if (root->left) {		
+		codes[top] = 1;	//왼쪽에 자리가 있으면 내려가서 1을 넣음
+		PrintCodes(root->left, codes, top + 1);
+	}
+	//0을 저장하고 순환호출한다
+	if (root->right) {
+		codes[top] = 0;		//오른쪽에 자리가 있으면 내려가서 1을 넣음
+		PrintCodes(root->right, codes, top + 1);
+	}
+	if (is_leaf(root)) {	//오른쪽 왼쪽 전부 돌았으면
+		printf("%c: ", root->ch);
+		PrintArray(codes, top);
+	}
+}
 
-	heap = create();	//히프 동적 할당과 초기화
+//허프만 코드 생성 함수
+void HuffmanTree(int freq[], char ch_list[], int n) {
 
-	InsertMax(heap, e1); InsertMax(heap, e2); InsertMax(heap, e3);	//heap 하나에 엘리멘트를 전부 넣기
-	/*
-			30
-		   /  \
-		  10  20
-	*/
-	printf("삽입한 순서\n");
-	PrintHeap(heap);
+	int i;
+	TreeNode* node, * x;
+	HeapType* heap;	
+	element e, e1, e2;
+	int codes[100];
+	int top = 0;
 
+	heap = create();	//동적할당하고 초기화함
+	for (i = 0; i < n; i++) {	//받은 매개변수 n만큼 
 
-	printf("삭제 값\n");
-	e4 = DeleteMax(heap);	//heap의 삭제된 값을 e4에 저장
-	printf("%d ", e4.key);
+		node = MakeTree(NULL, NULL);	//트리를 동적할당함
+		e.ch = node->ch = ch_list[i];	//문자를 엘리멘트랑 트리노드에 둘 다 저장함
+		e.key = node->weight = freq[i];	//빈도수(정수)를 엘리멘트랑 트리노드에 둘 다 저장함
+		e.ptree = node;
+		InsertMin(heap, e);
+	}
+	for (i = 1; i < n; i++) {
+		//최소값을 가지는 두개의 노드를 삭제
+		//앞의 반복문을 통해 최소히프의 형태가 됨(루트가 최솟값인),
+		e1 = DeleteMin(heap);
+		e2 = DeleteMin(heap);
+		//두개의 노드를 합침
+		x = MakeTree(e1.ptree, e2.ptree);	//최솟값으로 이루어진 트리의 주소지를 x에 넘겨줌
+		e.key = x->weight = e1.key + e2.key;	//합친 값을 저장
+		e.ptree = x;
+		printf("%d + %d -> %d\n", e1.key, e2.key, e1.key + e2.key);
+		InsertMin(heap, e);	//합친 값을 삽입
+	}
 
-	e5 = DeleteMax(heap);	//heap의 삭제된 값을 e4에 저장
-	printf("%d ", e5.key);
-
-	e6 = DeleteMax(heap);	//heap의 삭제된 값을 e4에 저장
-	printf("%d ", e6.key);
-
+	e = DeleteMin(heap);	//최종트리
+	PrintCodes(e.ptree, codes, top);
+	DestroyTree(e.ptree);
 	free(heap);
 
+}
+
+
+int main() {
+
+	char ch_list[] = {'s', 'i', 'n', 't', 'e'};
+	int freq[] = { 4,6,8,12,15 };
+
+	HuffmanTree(freq, ch_list, 5);
+
+	return 0;
 }
