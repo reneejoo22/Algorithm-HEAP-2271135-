@@ -138,7 +138,7 @@ void PrintArray(int codes[], int n) {
 	//HuffmanBit(n);
 }
 
-void PrintCodes(TreeNode* root, int codes[], int top, int nodePassed[], int *sum) {
+void PrintCodes(TreeNode* root, int codes[], int top, int *sum) {
 	
 	int huffmanbitt = 0;
 	//int sum;
@@ -149,28 +149,28 @@ void PrintCodes(TreeNode* root, int codes[], int top, int nodePassed[], int *sum
 
 	if (root->left) {
 		codes[top] = 1;
-		nodePassed[root->ch]++;  // 노드의 ch 값으로 인덱스를 사용하여 방문 횟수 증가
+		//nodePassed[root->ch]++;  // 노드의 ch 값으로 인덱스를 사용하여 방문 횟수 증가
 
 		// 테스트용
 		//printf("\n왼 codes[top] -> %d[%d], nodepass-> %d", codes[top], top, nodePassed[root->ch]);
 		// 테스트용
 
-		PrintCodes(root->left, codes, top + 1, nodePassed, sum);
+		PrintCodes(root->left, codes, top + 1, sum);
 	}
 
 	if (root->right) {
 		codes[top] = 0;
-		nodePassed[root->ch]++;  // 노드의 ch 값으로 인덱스를 사용하여 방문 횟수 증가
+		//nodePassed[root->ch]++;  // 노드의 ch 값으로 인덱스를 사용하여 방문 횟수 증가
 
 		// 테스트용
 		//printf("\n오 codes[top] -> %d[%d], nodepass-> %d", codes[top], top, nodePassed[root->ch]);
 		// 테스트용
 
-		PrintCodes(root->right, codes, top + 1, nodePassed, sum);
+		PrintCodes(root->right, codes, top + 1, sum);
 	}
 
 	if (is_leaf(root)) {
-		nodePassed[root->ch]++;  // 노드의 ch 값으로 인덱스를 사용하여 방문 횟수 증가
+		//nodePassed[root->ch]++;  // 노드의 ch 값으로 인덱스를 사용하여 방문 횟수 증가
 		printf("비트 계산 %c: ", root->ch);
 		PrintArray(codes, top);
 		huffmanbitt = root->weight * top;
@@ -221,7 +221,7 @@ void HuffmanTree(int freq[], char ch_list[], int n) {
 	int top = 0;
 
 	//지나온 노드의 갯수를 저장하는 정수
-	int nodePassed[100] = {0};
+	//int nodePassed[100] = {0};
 	int sum = 0;
 
 
@@ -249,7 +249,7 @@ void HuffmanTree(int freq[], char ch_list[], int n) {
 
 	e = DeleteMin(heap);	//최종트리
 	printf("\n");
-	PrintCodes(e.ptree, codes, top, nodePassed, &sum);
+	PrintCodes(e.ptree, codes, top, &sum);
 	//int nodeNum[] = { PrintCodes(e.ptree, codes, top, nodePassed) };
 	fourBit(freq, n);	//4비트 계산
 	//printf("\n총 사용된 비트 수: %d\n", nodeNum);
