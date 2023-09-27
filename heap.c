@@ -1,6 +1,7 @@
-//2271135_허프만코드(과제)_호프만 코드길이 계산 구현
+//2271135_허프만코드(과제)_호프만 코드길이 계산 구현+ 암호화 복호화 추가
 
 #define _CRT_SECURE_NO_WARNINGS
+
 #include<stdio.h>
 #include<stdlib.h>
 #define MaxElement 200
@@ -29,6 +30,19 @@ typedef struct {
 	element heap[MaxElement];	//위치   
 	int HeapSize;	//heap에 몇개의 요소가 저장되어있는지
 }HeapType;
+
+//4번 문제//////////////////////
+typedef struct {
+	
+	char code[20];
+	char ori;
+}CodeSave;
+
+typedef struct {
+
+	CodeSave array[100];
+}whereCodeSave;
+
 
 
 //생성+초기화 함수
@@ -135,93 +149,134 @@ void PrintArray(int codes[], int n) {
 		printf("%d", codes[i]);
 	}
 	printf("\n");
-	//HuffmanBit(n);
 }
 
-void PrintCodes(TreeNode* root, int codes[], int top, int *sum) {
-	
+void PrintCodes(TreeNode* root, int codes[], int top, int* sum) {
+
 	int huffmanbitt = 0;
 	//int sum;
-	
+
 	if (root == NULL) {
 		return;
 	}
 
 	if (root->left) {
 		codes[top] = 1;
-		//nodePassed[root->ch]++;  // 노드의 ch 값으로 인덱스를 사용하여 방문 횟수 증가
-
-		// 테스트용
-		//printf("\n왼 codes[top] -> %d[%d], nodepass-> %d", codes[top], top, nodePassed[root->ch]);
-		// 테스트용
-
+		
+		printf("왼으로 감");
 		PrintCodes(root->left, codes, top + 1, sum);
 	}
 
 	if (root->right) {
 		codes[top] = 0;
-		//nodePassed[root->ch]++;  // 노드의 ch 값으로 인덱스를 사용하여 방문 횟수 증가
-
-		// 테스트용
-		//printf("\n오 codes[top] -> %d[%d], nodepass-> %d", codes[top], top, nodePassed[root->ch]);
-		// 테스트용
-
+		printf("른으로 감");
 		PrintCodes(root->right, codes, top + 1, sum);
 	}
 
 	if (is_leaf(root)) {
-		//nodePassed[root->ch]++;  // 노드의 ch 값으로 인덱스를 사용하여 방문 횟수 증가
+
 		printf("비트 계산 %c: ", root->ch);
 		PrintArray(codes, top);
 		huffmanbitt = root->weight * top;
 		*sum += huffmanbitt;
-		//printf("호프만 비트 계산 %c의 길이는 %d ", root->ch, huffmanbitt);
-		//printf("\n누적 %d",*sum);
+
 	}
 
 	//printf("\n\n총 호프만 비트 계산 길이는 %d ", sum);
 }
 
-//안되는 이유_받은 루트에 애초에 ch값이 없음
 
+void Encode(TreeNode* root, char codes[], int top, char c, CodeSave* cs) {
+
+	if (root == NULL) {
+		return;
+	}
+
+	if (root->left) {
+		codes[top] = '1';
+		printf("\n왼 %c",codes[top]);
+		Encode(root->left, codes, top + 1, c, cs);
+	}
+
+	if (root->right) {
+		codes[top] = '0';
+		printf("\n오 %c", codes[top]);
+		Encode(root->right, codes, top + 1, c, cs);
+	}
+
+	if (is_leaf(root) && root->ch == c) {
+		printf("\n멈춤");
+		// 특정 문자의 코드를 encodedCode 배열에 복사
+		for (int i = 0; i < top; i++) {
+			cs->code[i] = codes[i];
+			printf("\nencodedCode = %c",codes[i]);
+		}
+		cs->code[top] = '\0';
+		cs->ori = c;
+		return;
+	}
+}
+
+
+
+
+TreeNode* explore(char c, TreeNode* root) {
+	
+
+	//int codes;
+	//printf("실행");
+
+	if (root == NULL) {
+		//printf("\n아무것도 없었다"); 
+		return NULL;	//루트 값에 아무것도 없으면 돌려보내기
+	}
+
+	if (root->ch == c) {
+		//printf("\n바로있었다"); 
+
+		return root;	// 입력받은 root가 c이랑 바로 일치하면 돌려보내기
+	}
+
+	TreeNode* result = NULL;
+
+	if (root->ch != c && root != NULL) {
+		//printf("\n왼으로 간다");
+
+		result = explore(c, root->left);
+	}
+	if(result==NULL){
+		//printf("\n오른으로 간다");
+	
+		result = explore(c, root->right);
+	}
+	
+	return result;
+
+}
 
 
 //4비트 계산 함수
 void fourBit(int freq[], int num) {
 
-	int sum = 0;
+	int summ = 0;
 	for (int i = 0; i < num; i++) {
-		sum += freq[i];
+		summ += freq[i];
 	}
-	printf("\n4비트 코드시: %d", sum*2);
-}
-
-void HuffmanBit(int freq[], int num, int nodePassed[]) {
-
-	int res = 0;
-
-	for (int i = 0; i < num; i++) {
-		res += freq[i] * nodePassed[i];
-		//printf("%d\n", res);
-	}
-
-	printf("\n허프만 코드시: %d", res);
-
+	printf("\n4비트 코드시: %d", summ*2);
 }
 
 
 //허프만 코드 생성 함수
-void HuffmanTree(int freq[], char ch_list[], int n) {
+element HuffmanTree(int freq[], char ch_list[], int n) {
 
 	int i;
 	TreeNode* node, * x;
 	HeapType* heap;
 	element e, e1, e2;
-	int codes[100];
+	int codes[100];	//지나간 노드를 담을 배열
 	int top = 0;
 
-	//지나온 노드의 갯수를 저장하는 정수
-	//int nodePassed[100] = {0};
+	//호프만코드 비트 값의 계산을 담을 정수형 변수 
 	int sum = 0;
 
 
@@ -250,19 +305,21 @@ void HuffmanTree(int freq[], char ch_list[], int n) {
 	e = DeleteMin(heap);	//최종트리
 	printf("\n");
 	PrintCodes(e.ptree, codes, top, &sum);
-	//int nodeNum[] = { PrintCodes(e.ptree, codes, top, nodePassed) };
 	fourBit(freq, n);	//4비트 계산
-	//printf("\n총 사용된 비트 수: %d\n", nodeNum);
-	//HuffmanBit(freq, n, nodeNum);	//호프만 비트계산
 	printf("\n호프만 코드시: %d", sum);
-	DestroyTree(e.ptree);
-	free(heap);
+	
+	return e;
+	//나중에 주석 처리 지우기
+	//DestroyTree(e.ptree);
+	//free(heap);
 
 }
 
-
+CodeSave codeSaver;
 
 int main() {
+
+
 	/*
 	int num;
 
@@ -286,8 +343,63 @@ int main() {
 	char ch_list[] = { 'a','b','c' };
 	int freq[] = { 1,2,4 };
 
-	HuffmanTree(freq, ch_list, 3);
+	element e = HuffmanTree(freq, ch_list, 3);
 
+
+
+	//암호화 진행
+
+	int numm; // 입력받을 문자의 갯수에 맞춰서 동적 배열 할당
+
+	printf("\n암호화할 문자의 갯수를 입력하시오-> ");
+	scanf("%d", &numm);
+
+	char* original = (char*)malloc((numm + 1) * sizeof(char)); // 문자열 + 널 종료 문자('\0')를 위한 공간 할당
+
+	if (original == NULL) {
+		printf("메모리 할당 실패\n");
+		return 1; // 실패 코드 반환
+	}
+
+	printf("암호화할 문자를 입력하시오-> ");
+	scanf(" %s", original); // 최대 길이를 99로 제한
+
+	printf("original: %s\n", original);
+	printf("original[1]: %c\n", original[1]);
+
+	char codes[100], encodedCode[100], top = 0;
+
+	for (int i = 0; i < numm; i++) {
+
+		printf("\n--------------------%c 찾기", original[i]);
+
+		if ((explore(original[i], e.ptree)) != NULL) {
+			printf("\n%c 암호화 가능", original[i]);
+			
+		}
+		else printf("\n%c 암호화 불가능", original[i]);
+		
+	}
+
+	
+	int i = 0;
+
+	printf("a의 암호화=========");
+	Encode(e.ptree, codes, top, original[0], &codeSaver);
+
+	printf("\n메인함수에서 %c\n", codeSaver.ori);
+
+	
+	while (codeSaver.code[i] != '\0') {
+		printf("%c", codeSaver.code[i]);
+		i++;
+	}
+	
+	//printf("b의 암호화=========");
+	//Encode(e.ptree, codes, top, original[1], encodedCode);
+	
+	// 메모리 해제
+	//free(original);
+	
 	return 0;
-
 }
