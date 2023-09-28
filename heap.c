@@ -4,6 +4,7 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 #define MaxElement 200
 
 typedef struct TreeNode {
@@ -32,16 +33,49 @@ typedef struct {
 }HeapType;
 
 //4번 문제//////////////////////
-typedef struct {
+typedef struct CodeSave {
 	
-	char code[20];
-	char ori;
+	char code[20];	// 암호화한 것 저장
+	char ori;	//원본 저장
+	struct codeSave* link;	//이후의 노드를 저장
+
 }CodeSave;
 
-typedef struct {
+CodeSave* head = NULL;
 
-	CodeSave array[100];
-}whereCodeSave;
+void print_list(CodeSave* head) {
+
+	int i = 0;
+
+	//printf("\n프린트 리스트 함수에서 %c\n", head->ori);
+
+	while (head->code[i] != '\0') {
+		printf("%c", head->code[i]);
+		i++;
+	}
+}
+
+CodeSave* insert_first(CodeSave* head, char codes[], char oris, int top) {
+
+	CodeSave* p = (CodeSave*)malloc(sizeof(CodeSave));
+
+	for (int i = 0; i < top; i++) {
+		p->code[i] = codes[i];
+		//printf("\n노드에 삽입된 코드 = %c", codes[i]);
+	}
+	p->code[top] = '\0';	//뒤에 널값 넣음
+	p->ori = oris;			//받아온 oris를 넣음
+	
+	p->link = head;		//헤드 포인터의 값을 복사
+	head = p;			//헤드 포인터 변경, 헤드가 새로 생성된 노드 가르킴
+
+	print_list(head);
+	return head;
+}
+
+
+
+//4번 문제//////////////////////
 
 
 
@@ -163,13 +197,13 @@ void PrintCodes(TreeNode* root, int codes[], int top, int* sum) {
 	if (root->left) {
 		codes[top] = 1;
 		
-		printf("왼으로 감");
+		//printf("왼으로 감");
 		PrintCodes(root->left, codes, top + 1, sum);
 	}
 
 	if (root->right) {
 		codes[top] = 0;
-		printf("른으로 감");
+		//printf("른으로 감");
 		PrintCodes(root->right, codes, top + 1, sum);
 	}
 
@@ -182,11 +216,10 @@ void PrintCodes(TreeNode* root, int codes[], int top, int* sum) {
 
 	}
 
-	//printf("\n\n총 호프만 비트 계산 길이는 %d ", sum);
 }
 
-
-void Encode(TreeNode* root, char codes[], int top, char c, CodeSave* cs) {
+//암호화, 입력받은 문자(하나만) 
+void Encode(TreeNode* root, char codes[], int top, char c) {
 
 	if (root == NULL) {
 		return;
@@ -194,37 +227,27 @@ void Encode(TreeNode* root, char codes[], int top, char c, CodeSave* cs) {
 
 	if (root->left) {
 		codes[top] = '1';
-		printf("\n왼 %c",codes[top]);
-		Encode(root->left, codes, top + 1, c, cs);
+		//printf("\n왼 %c",codes[top]);
+		Encode(root->left, codes, top + 1, c);
 	}
 
 	if (root->right) {
 		codes[top] = '0';
-		printf("\n오 %c", codes[top]);
-		Encode(root->right, codes, top + 1, c, cs);
+		//printf("\n오 %c", codes[top]);
+		Encode(root->right, codes, top + 1, c);
 	}
 
 	if (is_leaf(root) && root->ch == c) {
-		printf("\n멈춤");
-		// 특정 문자의 코드를 encodedCode 배열에 복사
-		for (int i = 0; i < top; i++) {
-			cs->code[i] = codes[i];
-			printf("\nencodedCode = %c",codes[i]);
-		}
-		cs->code[top] = '\0';
-		cs->ori = c;
+		//printf("\n멈춤");
+		insert_first(head, codes, root->ch, top);	
+		//리스트 노드에 코드와 문자를 삽입할 것이다 
 		return;
 	}
 }
 
-
-
-
+//암호화하려고 입력받은 문자가 히프만 트리에 있는지 없는지 확인
 TreeNode* explore(char c, TreeNode* root) {
 	
-
-	//int codes;
-	//printf("실행");
 
 	if (root == NULL) {
 		//printf("\n아무것도 없었다"); 
@@ -254,6 +277,32 @@ TreeNode* explore(char c, TreeNode* root) {
 
 }
 
+//복호화 함수
+void Decode(TreeNode* root, const char* encodedMessage) {
+
+	TreeNode* currentNode = root;
+
+	for (int i = 0; i < encodedMessage[i] != '\0'; i++) {
+		if (encodedMessage[i] == '0') {
+			//printf("\n오른으로 감");
+			currentNode = currentNode->right;
+		}
+		else if (encodedMessage[i] == '1') {
+			//printf("\n왼으로 감");
+			currentNode = currentNode->left;
+		}
+		else {
+			printf("없는 경로입니다, 다시 입력하십시오");
+			break;
+		}
+		if(is_leaf(currentNode)){
+			//printf("\n찾음");
+			printf("%c", currentNode->ch);
+			currentNode = root;
+			//printf("\n이후 것 찾으러 감");
+		}
+	}
+}
 
 //4비트 계산 함수
 void fourBit(int freq[], int num) {
@@ -315,7 +364,6 @@ element HuffmanTree(int freq[], char ch_list[], int n) {
 
 }
 
-CodeSave codeSaver;
 
 int main() {
 
@@ -351,7 +399,7 @@ int main() {
 
 	int numm; // 입력받을 문자의 갯수에 맞춰서 동적 배열 할당
 
-	printf("\n암호화할 문자의 갯수를 입력하시오-> ");
+	printf("\n\n암호화할 문자의 갯수를 입력하시오-> ");
 	scanf("%d", &numm);
 
 	char* original = (char*)malloc((numm + 1) * sizeof(char)); // 문자열 + 널 종료 문자('\0')를 위한 공간 할당
@@ -364,42 +412,40 @@ int main() {
 	printf("암호화할 문자를 입력하시오-> ");
 	scanf(" %s", original); // 최대 길이를 99로 제한
 
-	printf("original: %s\n", original);
-	printf("original[1]: %c\n", original[1]);
+	//printf("original: %s\n", original);
+	//printf("original[1]: %c\n", original[1]);
 
-	char codes[100], encodedCode[100], top = 0;
+	char codes[100], top = 0;
 
 	for (int i = 0; i < numm; i++) {
 
-		printf("\n--------------------%c 찾기", original[i]);
+		//printf("\n--------------------%c 찾기", original[i]);
 
-		if ((explore(original[i], e.ptree)) != NULL) {
-			printf("\n%c 암호화 가능", original[i]);
-			
+		if ((explore(original[i], e.ptree)) != NULL) {	//있는지 없는지 확인
+			//printf("\n%c 암호화 가능", original[i]);
+			Encode(e.ptree, codes, top, original[i]);
 		}
-		else printf("\n%c 암호화 불가능", original[i]);
+		else printf("\n%c 없는 문자로 암호화 불가능", original[i]);
 		
 	}
 
-	
-	int i = 0;
+	//복호화 진행
 
-	printf("a의 암호화=========");
-	Encode(e.ptree, codes, top, original[0], &codeSaver);
 
-	printf("\n메인함수에서 %c\n", codeSaver.ori);
+	//char* decode = (char*)malloc((number + 1) * sizeof(char)); // 문자열 + 널 종료 문자('\0')를 위한 공간 할당
 
+	char decode[100];
+
+	printf("\n복호화할 숫자를 입력하시오-> ");
+	scanf(" %s", decode);
+
+	int decodeLength = strlen(decode); // 문자열의 길이를 계산
+	const char* decodedString = (char*)malloc((decodeLength + 1) * sizeof(char));	//입력받은 문자열 길이만큼 동적할당
 	
-	while (codeSaver.code[i] != '\0') {
-		printf("%c", codeSaver.code[i]);
-		i++;
-	}
-	
-	//printf("b의 암호화=========");
-	//Encode(e.ptree, codes, top, original[1], encodedCode);
-	
-	// 메모리 해제
-	//free(original);
-	
+	strcpy(decodedString, decode);
+
+	Decode(e.ptree, decodedString);
+
+
 	return 0;
 }
