@@ -386,6 +386,7 @@ int main() {
 	}
 	printf("\n");
 	HuffmanTree(freq, ch_list, num);
+
 	*/
 
 	char ch_list[] = { 'a','b','c' };
