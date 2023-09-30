@@ -1,4 +1,4 @@
-//2271135_허프만코드(과제)_호프만 코드길이 계산 구현+ 암호화 복호화 + preorderTraversal
+//2271135_허프만코드(과제)_호프만 코드길이 계산 구현(수정)+ 암호화 복호화 + preorderTraversal+ 
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -306,19 +306,35 @@ void Decode(TreeNode* root, const char* encodedMessage) {
 //2비트 계산 함수
 void bitCal(int freq[], int num) {
 
-	int summ = 0;
-	int bitsNeeded = 0;
+	int summ = 0;	//빈도수의 합을 저장하는 값
 
-		for (int i = 0; i < num; i++) {
-			summ += freq[i];
-		}
+	int N2 = 1, bitsNeeded = 0;	//N2는 while문이 돌때마다 2를 곱하는 값
+	int tmp = num;
 
-		bitsNeeded = num / 2;
+	for (int i = 0; i < num; i++) {	//빈도수의 합을 계산
+		summ += freq[i];
+	}
 
-		printf("\n%d 비트 코드로 표현시: %d",bitsNeeded, summ* bitsNeeded);
+	//몇비트인지 계산
+	while (tmp != 1 && tmp != 0) {	//나머지가 0이거나 1이면 멈춤
+
+		tmp /= 2;
+		N2 *= 2;	//돌때마다 2곱함
+		bitsNeeded++;	//승 계산
+	}
+
+	if (num > N2) {	//예를 들어 num이 20이면 2의4승 이상이니 5비트가 필요
+
+		bitsNeeded++;	//그러니 비트수에 +1
+	}
+	else if (num <= N2) {	//같은 경우에는 따로 취할 조취 없음
+
+		bitsNeeded += 0;
+	}
+
+	printf("\n%d 비트 코드로 표현시: %d", bitsNeeded, summ * bitsNeeded);
 
 }
-
 
 
 //전위순회
@@ -328,8 +344,8 @@ void preorderTraversal(TreeNode* root) {
 
 	if (root != NULL) {
 		if (root->ch == NULL) {
-			
-			printf("%s ",root->newNode);
+
+			printf("%s ", root->newNode);
 		}
 		else if (root->ch != NULL) {
 			printf("%c ", root->ch);
@@ -340,16 +356,14 @@ void preorderTraversal(TreeNode* root) {
 	}
 }
 
-//element의 ch에저장되잖아 h-1은 아이고
-
-
+HeapType* heap;
 
 //허프만 코드 생성 함수
 element HuffmanTree(int freq[], char ch_list[], int n) {
 
 	int i;
 	TreeNode* node, * x;
-	HeapType* heap;
+	//HeapType* heap;    메모리 해제를 메인함
 	element e, e1, e2;
 	int codes[100];	//지나간 노드를 담을 배열
 	int top = 0;
@@ -379,7 +393,7 @@ element HuffmanTree(int freq[], char ch_list[], int n) {
 		x = MakeTree(e1.ptree, e2.ptree);	//최솟값으로 이루어진 트리의 주소지를 x에 넘겨줌
 		e.key = x->weight = e1.key + e2.key;	//합친 값을 저장
 
-		sprintf(x->newNode, "(H+%d)", test);  // 문자열로 "H-n" 형식 저장
+		sprintf(x->newNode, "(H-%d)", test);  // 문자열로 "H-n" 형식 저장
 		test++;
 		x->ch = NULL;	//문자를 가지고 있는 노드인지 아닌지 구별하기 위해서
 
@@ -392,7 +406,7 @@ element HuffmanTree(int freq[], char ch_list[], int n) {
 
 
 	e = DeleteMin(heap);	//최종트리
-	
+
 	//전위순회
 	printf("\n*** preorder traversal_전위순회 ***\n");
 	preorderTraversal(e.ptree);
@@ -401,7 +415,7 @@ element HuffmanTree(int freq[], char ch_list[], int n) {
 	//각 노드의 경로(코드) 출력
 	printf("*** 각 노드의 경로 ***\n");
 	PrintCodes(e.ptree, codes, top, &sum);
-	
+
 	//비트 코드시 계산
 	bitCal(freq, n);	//2비트 계산
 	printf("\n가변 길이의 코드로 표현시: %d", sum);
@@ -416,7 +430,6 @@ element HuffmanTree(int freq[], char ch_list[], int n) {
 
 int main() {
 
-	
 	int num;
 
 	printf("입력할 자료의 개수를 쓰시오-> ");
@@ -483,6 +496,10 @@ int main() {
 
 	Decode(e.ptree, decodedString);
 
+
+	//메모리 해제
+	free(original); free(decodedString);
+	DestroyTree(e.ptree); free(heap);
 
 	return 0;
 }
