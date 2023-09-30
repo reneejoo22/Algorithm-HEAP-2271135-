@@ -498,6 +498,7 @@ int main() {
 	//메모리 해제
 	free(original); free(decodedString);
 	DestroyTree(e.ptree); free(heap);
+	free(ch_list); free(freq);
 
 	return 0;
 }
