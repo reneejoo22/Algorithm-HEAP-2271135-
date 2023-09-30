@@ -1,4 +1,5 @@
-//2271135_허프만코드(과제)_호프만 코드길이 계산 구현(수정)+ 암호화 복호화 + preorderTraversal+ 
+//2271135_허프만코드(과제)_호프만 코드길이 계산 구현(수정)+ 암호화 복호화 + preorderTraversal
+//+ 메모리 해제
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -18,8 +19,6 @@ typedef struct TreeNode {
 	struct TreeNode* right;		//오른쪽위치
 }TreeNode;
 
-
-
 typedef struct {
 
 	// 트리노드의 위치값을 저장함
@@ -28,7 +27,6 @@ typedef struct {
 	char ch;	//문자열 저장, 트리노드의 문자열을 여기에 저장
 
 }element;
-
 
 typedef struct {
 	element heap[MaxElement];	//위치   
