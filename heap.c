@@ -467,8 +467,8 @@ int main() {
 
 		printf("입력할 빈도수-> ");
 		scanf("%d", &freq[i]);
-	}
-	printf("\n");
+	} 
+	printf("\n\n");
 
 
 	//char ch_list[] = { 'a','b','c' };
@@ -497,7 +497,7 @@ int main() {
 
 	for (int i = 0; i < numm; i++) {
 
-		if ((explore(original[i], e.ptree)) != NULL) {	//있는지 없는지 확인
+		if ((explore(original[i], e.ptree)) != NULL || original[i] != NULL) {	//있는지 없는지 확인
 			//printf("\n%c 암호화 가능", original[i]);
 			Encode(e.ptree, codes, top, original[i]);
 		}
