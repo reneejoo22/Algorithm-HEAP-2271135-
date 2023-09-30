@@ -1,5 +1,5 @@
 //2271135_허프만코드(과제)_호프만 코드길이 계산 구현(수정)+ 암호화 복호화 + preorderTraversal
-//+ 메모리 해제
+//+ 메모리 해제+ 중복문자 검사
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -425,6 +425,16 @@ element HuffmanTree(int freq[], char ch_list[], int n) {
 
 }
 
+//중복된 문자 있는지 확인하는 함수
+int isDuplicate(char ch, char* ch_list, int length) {
+	for (int i = 0; i < length; i++) {
+		if (ch == ch_list[i]) {
+			return 1; // 중복된 문자가 발견되면 1을 반환
+		}
+	}
+	return 0; // 중복된 문자가 없으면 0을 반환
+}
+
 
 int main() {
 
@@ -437,9 +447,24 @@ int main() {
 	int* freq = (int*)malloc(num * sizeof(int));
 
 	for (int i = 0; i < num; i++) {
+		
+		char input;
+		int isDup;
 
-		printf("\n입력할 문자-> ");
-		scanf(" %c", &ch_list[i]);
+		do{
+			isDup = 0; // 초기값 0으로 설정
+			
+			printf("\n입력할 문자-> ");
+			scanf(" %c", &input);
+
+			if (isDuplicate(input, ch_list, i)) { //중복된 문자 있는지 확인
+				printf("이미 입력한 문자입니다. 다른 문자를 입력하세요.\n");
+				isDup = 1; // 중복된 문자가 있으면 isDup를 1로 
+			}
+		} while (isDup); // 중복된 문자가 있으면 다시 입력 받기
+
+		ch_list[i] = input;
+
 		printf("입력할 빈도수-> ");
 		scanf("%d", &freq[i]);
 	}
