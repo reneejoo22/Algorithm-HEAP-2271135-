@@ -1,5 +1,4 @@
-//2271135_허프만코드(과제)_호프만 코드길이 계산 구현(수정)+ 암호화 복호화 + preorderTraversal
-//+ 메모리 해제+ 중복문자 검사
+//2271135_허프만코드(과제)
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -14,7 +13,6 @@
 
 typedef struct TreeNode {
 
-	//이 두가지의 정보와+ 왼오 위치 정보값을 가짐
 	int weight;	//빈도수
 	char ch;	//문자
 	char newNode[MaxTreeInput];   //두개의 노드를 합치면서 생긴 (문자값이 없는)새로운 노드
@@ -48,10 +46,10 @@ typedef struct CodeSave {
 
 CodeSave* head = NULL;
 
+//암호화한 것들을 출력
 void print_list(CodeSave* head) {
 
 	int i = 0;
-
 
 	while (head->code[i] != '\0') {
 		printf("%c", head->code[i]);
@@ -59,26 +57,32 @@ void print_list(CodeSave* head) {
 	}
 }
 
+//각각 암호화한 코드 값을 리스트에 넣음
 CodeSave* insert_first(CodeSave* phead, char codes[], char oris, int top) {
 
 	CodeSave* p = (CodeSave*)malloc(sizeof(CodeSave));
 
-	for (int i = 0; i < top; i++) {
-		p->code[i] = codes[i];
-		//printf("\n노드에 삽입된 코드 = %c", codes[i]);
-	}
-	p->code[top] = '\0';	//뒤에 널값 넣음
-	p->ori = oris;			//받아온 oris를 넣음
+	if (p) {	//경고 6011 때문에 추가한 조건문
 
-	p->link = phead;		//헤드 포인터의 값을 복사
-	phead = p;			//헤드 포인터 변경, 헤드가 새로 생성된 노드 가르킴
+		for (int i = 0; i < top; i++) {
+			p->code[i] = codes[i];
+			//printf("\n노드에 삽입된 코드 = %c", codes[i]);
+		}
+
+		p->code[top] = '\0';	//뒤에 널값 넣음
+		p->ori = oris;			//받아온 oris를 넣음
+
+		p->link = phead;		//헤드 포인터의 값을 복사
+		phead = p;			//헤드 포인터 변경, 헤드가 새로 생성된 노드 가르킴
+	}
+	else printf("p값이 할당되지 않음");
 
 	print_list(phead);
+	
 	return phead;
 }
 
-
-//4번 문제//////////////////////
+//3번 문제//////////////////////
 
 
 //생성+초기화 함수
@@ -421,9 +425,6 @@ element HuffmanTree(int freq[], char ch_list[], int n) {
 	printf("\n가변 길이의 코드로 표현시: %d", sum);
 
 	return e;
-	//나중에 주석 처리 지우기
-	//DestroyTree(e.ptree);
-	//free(heap);
 
 }
 
@@ -440,18 +441,15 @@ int isDuplicate(char ch, char* ch_list, int length) {
 
 int main() {
 
-	int num = 0;
+	int num = 0;	//입력받을 자료의 갯수
 
-	char input = 0;
+	char input = 0;	
 	int isDup = 0;
-	//int ret;
+
 
 	printf("입력할 자료의 개수를 쓰시오-> ");
-	if (scanf("%d", &num) == 0) { printf("scanf error \n"); }
+	if (scanf("%d", &num) == 0) { printf("scanf error \n"); }	//6031 경고 때문에 반환값이 읽히는지 확인할 수 있는 조건문씀
 
-	
-
-	//printf("%d", ret);
 
 	char* ch_list = (char*)malloc(num * sizeof(char));
 	// memset(ch_list, 0, sizeof(num ));
@@ -485,7 +483,7 @@ int main() {
 	element e = HuffmanTree(freq, ch_list, num);
 
 
-	int numm; // 입력받을 문자의 갯수에 맞춰서 동적 배열 할당
+	int numm = 0; // 입력받을 문자의 갯수에 맞춰서 동적 배열 할당
 
 	printf("\n\n암호화할 문자열의 갯수를 입력하시오-> ");
 	if( scanf("%d", &numm) ==0 ) { printf("scanf error \n"); }
@@ -515,7 +513,7 @@ int main() {
 
 	//복호화 진행
 
-	char decode[MaxCharInput] = { 0, };
+	char decode[MaxCharInput] = { 0, };	//값을 초기화
 	char* decodedString;
 
 	printf("\n복호화할 코드를 입력하시오-> ");
