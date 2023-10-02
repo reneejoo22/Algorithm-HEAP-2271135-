@@ -7,14 +7,18 @@
 #include<stdlib.h>
 #include<string.h>
 #include<ctype.h>
+
 #define MaxElement 200
+#define MaxTreeInput 10 
+#define MaxCharInput 100 
 
 typedef struct TreeNode {
 
 	//이 두가지의 정보와+ 왼오 위치 정보값을 가짐
 	int weight;	//빈도수
 	char ch;	//문자
-	char newNode[10];	//두개의 노드를 합치면서 생긴 (문자값이 없는)새로운 노드
+	char newNode[MaxTreeInput];   //두개의 노드를 합치면서 생긴 (문자값이 없는)새로운 노드
+	
 	struct TreeNode* left;		//왼쪽위치
 	struct TreeNode* right;		//오른쪽위치
 }TreeNode;
@@ -55,7 +59,7 @@ void print_list(CodeSave* head) {
 	}
 }
 
-CodeSave* insert_first(CodeSave* head, char codes[], char oris, int top) {
+CodeSave* insert_first(CodeSave* phead, char codes[], char oris, int top) {
 
 	CodeSave* p = (CodeSave*)malloc(sizeof(CodeSave));
 
@@ -66,11 +70,11 @@ CodeSave* insert_first(CodeSave* head, char codes[], char oris, int top) {
 	p->code[top] = '\0';	//뒤에 널값 넣음
 	p->ori = oris;			//받아온 oris를 넣음
 
-	p->link = head;		//헤드 포인터의 값을 복사
-	head = p;			//헤드 포인터 변경, 헤드가 새로 생성된 노드 가르킴
+	p->link = phead;		//헤드 포인터의 값을 복사
+	phead = p;			//헤드 포인터 변경, 헤드가 새로 생성된 노드 가르킴
 
-	print_list(head);
-	return head;
+	print_list(phead);
+	return phead;
 }
 
 
@@ -338,17 +342,15 @@ void bitCal(int freq[], int num) {
 //전위순회
 void preorderTraversal(TreeNode* root) {
 
-	//tmp = e;
 
 	if (root != NULL) {
-		if (root->ch == NULL) {
+		if (root->ch == '\0') {
 
 			printf("%s ", root->newNode);
 		}
-		else if (root->ch != NULL) {
+		else if (root->ch !=  '\0' ) {
 			printf("%c ", root->ch);
 		}
-		//tmp = root->left;
 		preorderTraversal(root->left);
 		preorderTraversal(root->right);
 	}
@@ -393,7 +395,7 @@ element HuffmanTree(int freq[], char ch_list[], int n) {
 
 		sprintf(x->newNode, "(H-%d)", test);  // 문자열로 "H-n" 형식 저장
 		test++;
-		x->ch = NULL;	//문자를 가지고 있는 노드인지 아닌지 구별하기 위해서
+		x->ch = '\0'; // NULL;	//문자를 가지고 있는 노드인지 아닌지 구별하기 위해서
 
 		e.ptree = x;
 		printf("%d + %d -> %d", e1.key, e2.key, e.key);
@@ -438,24 +440,33 @@ int isDuplicate(char ch, char* ch_list, int length) {
 
 int main() {
 
-	int num;
+	int num = 0;
+
+	char input = 0;
+	int isDup = 0;
+	//int ret;
 
 	printf("입력할 자료의 개수를 쓰시오-> ");
-	scanf("%d", &num);
+	if (scanf("%d", &num) == 0) { printf("scanf error \n"); }
+
+	
+
+	//printf("%d", ret);
 
 	char* ch_list = (char*)malloc(num * sizeof(char));
+	// memset(ch_list, 0, sizeof(num ));
 	int* freq = (int*)malloc(num * sizeof(int));
 
 	for (int i = 0; i < num; i++) {
 		
-		char input;
-		int isDup;
+		input = 0;
+		isDup = 0;
 
 		do{
 			isDup = 0; // 초기값 0으로 설정
 			
 			printf("\n입력할 문자-> ");
-			scanf(" %c", &input);
+			if( scanf(" %c", &input) == 0 ) { printf("scanf error \n"); }
 
 			if (isDuplicate(input, ch_list, i)) { //중복된 문자 있는지 확인
 				printf("이미 입력한 문자입니다. 다른 문자를 입력하세요.\n");
@@ -466,13 +477,10 @@ int main() {
 		ch_list[i] = input;
 
 		printf("입력할 빈도수-> ");
-		scanf("%d", &freq[i]);
+		if( scanf("%d", &freq[i]) == 0 ) { printf("scanf error \n"); }
 	} 
 	printf("\n\n");
 
-
-	//char ch_list[] = { 'a','b','c' };
-	//int freq[] = { 1,2,4 };
 
 	element e = HuffmanTree(freq, ch_list, num);
 
@@ -480,7 +488,7 @@ int main() {
 	int numm; // 입력받을 문자의 갯수에 맞춰서 동적 배열 할당
 
 	printf("\n\n암호화할 문자열의 갯수를 입력하시오-> ");
-	scanf("%d", &numm);
+	if( scanf("%d", &numm) ==0 ) { printf("scanf error \n"); }
 
 	char* original = (char*)malloc((numm + 1) * sizeof(char)); // 문자열 + 널 종료 문자('\0')를 위한 공간 할당
 
@@ -490,10 +498,10 @@ int main() {
 	}
 
 	printf("암호화할 문자를 입력하시오-> ");
-	scanf(" %s", original);
+	if(scanf(" %s", original) ==0 ) { printf("scanf error \n"); }
 
 
-	char codes[100], top = 0;
+	char codes[MaxCharInput], top = 0;
 
 	for (int i = 0; i < numm; i++) {
 
@@ -507,13 +515,16 @@ int main() {
 
 	//복호화 진행
 
-	char decode[100];
+	char decode[MaxCharInput] = { 0, };
+	char* decodedString;
 
 	printf("\n복호화할 코드를 입력하시오-> ");
-	scanf(" %s", decode);
+	if( scanf(" %s", decode) ==0 ) { printf("scanf error \n"); }
 
 	int decodeLength = strlen(decode); // 문자열의 길이를 계산
-	const char* decodedString = (char*)malloc((decodeLength + 1) * sizeof(char));	//입력받은 문자열 길이만큼 동적할당
+	
+	decodedString = (char*)malloc((decodeLength + 1) * sizeof(char));	//입력받은 문자열 길이만큼 동적할당
+
 
 	strcpy(decodedString, decode);
 
