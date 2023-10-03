@@ -75,7 +75,9 @@ CodeSave* insert_first(CodeSave* phead, char codes[], char oris, int top) {
 		p->link = phead;		//헤드 포인터의 값을 복사
 		phead = p;			//헤드 포인터 변경, 헤드가 새로 생성된 노드 가르킴
 	}
-	else printf("p값이 할당되지 않음");
+	else {
+		printf("p값이 할당되지 않음");  //  재 할당 또는 오류 처리가 필요함. 
+	}
 
 	print_list(phead);
 	
@@ -194,7 +196,6 @@ void PrintArray(int codes[], int n) {
 void PrintCodes(TreeNode* root, int codes[], int top, int* sum) {
 
 	int huffmanbitt = 0;
-	//int sum;
 
 	if (root == NULL) {
 		return;
@@ -309,7 +310,7 @@ void Decode(TreeNode* root, const char* encodedMessage) {
 	}
 }
 
-//2비트 계산 함수
+//비트 계산 함수
 void bitCal(int freq[], int num) {
 
 	int summ = 0;	//빈도수의 합을 저장하는 값
@@ -421,7 +422,7 @@ element HuffmanTree(int freq[], char ch_list[], int n) {
 	PrintCodes(e.ptree, codes, top, &sum);
 
 	//비트 코드시 계산
-	bitCal(freq, n);	//2비트 계산
+	bitCal(freq, n);	//비트 계산
 	printf("\n가변 길이의 코드로 표현시: %d", sum);
 
 	return e;
@@ -452,7 +453,6 @@ int main() {
 
 
 	char* ch_list = (char*)malloc(num * sizeof(char));
-	// memset(ch_list, 0, sizeof(num ));
 	int* freq = (int*)malloc(num * sizeof(int));
 
 	for (int i = 0; i < num; i++) {
@@ -522,7 +522,7 @@ int main() {
 	int decodeLength = strlen(decode); // 문자열의 길이를 계산
 	
 	decodedString = (char*)malloc((decodeLength + 1) * sizeof(char));	//입력받은 문자열 길이만큼 동적할당
-
+	if (decodedString == 0) { return;  }
 
 	strcpy(decodedString, decode);
 
