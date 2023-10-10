@@ -1,4 +1,4 @@
-//2271135_허프만코드(과제)
+//2271135_허프만코드(과제)  
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -501,7 +501,7 @@ int main() {
 
 	char codes[MaxCharInput], top = 0;
 
-	for (int i = 0; i < numm; i++) {
+	for (int i = 0; i < numm; i++) { 
 
 		if ((explore(original[i], e.ptree)) != NULL || original[i] != NULL) {	//있는지 없는지 확인
 			//printf("\n%c 암호화 가능", original[i]);
